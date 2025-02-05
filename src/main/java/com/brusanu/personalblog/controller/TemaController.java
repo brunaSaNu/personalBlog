@@ -8,11 +8,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.brusanu.personalblog.model.Tema;
 import com.brusanu.personalblog.repository.TemaRepository;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/temas")
@@ -38,5 +42,13 @@ public class TemaController {
 	public ResponseEntity<List<Tema>> getByTitle(@PathVariable String descricao){
 		return ResponseEntity.ok(temaRepository
 				.findAllByDescricaoContainingIgnoreCase(descricao));
+	}
+	
+	@PutMapping
+	public ResponseEntity<Tema> put(@Valid @RequestBody Tema tema){
+		return temaRepository.findById(tema.getId())
+				.map(resposta -> ResponseEntity.status(HttpStatus.CREATED)
+				.body(temaRepository.save(tema)))
+				.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
 }
