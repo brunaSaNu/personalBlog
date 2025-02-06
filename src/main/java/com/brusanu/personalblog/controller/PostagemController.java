@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.brusanu.personalblog.model.Postagem;
 import com.brusanu.personalblog.repository.PostagemRepository;
+import com.brusanu.personalblog.repository.TemaRepository;
 
 import jakarta.validation.Valid;
 
@@ -30,6 +31,9 @@ public class PostagemController {
 	
 	@Autowired
 	private PostagemRepository postagemRepository;
+	
+	@Autowired
+	private TemaRepository temaRepository;
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Postagem> getById(@PathVariable Long id){
@@ -50,8 +54,11 @@ public class PostagemController {
 	
 	@PostMapping
 	public ResponseEntity<Postagem> post(@Valid @RequestBody Postagem postagem){
+		if(temaRepository.existsById(postagem.getTema().getId()))
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.body(postagemRepository.save(postagem));
+		
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ei! este tema não existe :(", null);
 	}
 	
 	@PutMapping
